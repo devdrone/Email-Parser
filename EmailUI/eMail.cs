@@ -50,7 +50,8 @@ namespace EmailUI
                 LogUpdate(logger, "Connected to Gmail Server.", false);
                 client.Login("hrd@selectiveindia.in", "Ndbhdispc");//("developer1@mobotics.in", "mobotics@01");//
                 LogUpdate(logger, "Logged in Successfully", false);
-                mails = client.SelectMailbox("INBOX");              var messageids = mails.Search("FROM \"@naukri.com\"");//("ALL");//
+                mails = client.SelectMailbox("INBOX");
+                var messageids = mails.Search("FROM \"@naukri.com\"");//("ALL");//
                 string log = string.Format("{0} mails fetched", messageids.Length);
                 LogUpdate(logger, log, false);
                 Thread.Sleep(3000);
@@ -198,7 +199,7 @@ namespace EmailUI
         {
             try
             {
-                return detail.Substring(detail.IndexOf(':') + 2);
+                return detail.Substring(detail.IndexOf(':') + 1).Trim();
             }
             catch (Exception ex)
             {
@@ -209,7 +210,7 @@ namespace EmailUI
 
         public int progressValue(int value)
         {
-            return value / 100;
+            return 100 / value;
         }
 
         public List<string> htmlDetailsParser(string body)
@@ -224,9 +225,13 @@ namespace EmailUI
                 detailsList.Add(detailsFromHTML.ElementAt(33).InnerText.Trim());
                 detailsList.Add(detailsFromHTML.ElementAt(35).InnerText.Trim());
                 detailsList.Add(detailsFromHTML.ElementAt(37).InnerText.Trim());
-                if (detailsFromHTML.ElementAt(39).InnerText.Trim().Split('\n').Length > 1)
+                if (detailsFromHTML.ElementAt(39).InnerText.Contains("Rs"))
                 {
-                    detailsList.Add(detailsFromHTML.ElementAt(39).InnerText.Trim().Split('\n').ElementAt(6).Trim());
+                    detailsList.Add(detailsFromHTML.ElementAt(39).InnerText.Substring(detailsFromHTML.ElementAt(39).InnerText.IndexOf("Rs")));
+                }
+                else if (detailsFromHTML.ElementAt(39).InnerText.Contains("$"))
+                {
+                    detailsList.Add(detailsFromHTML.ElementAt(39).InnerText.Substring(detailsFromHTML.ElementAt(39).InnerText.IndexOf('$')));
                 }
                 else
                 {
@@ -240,14 +245,7 @@ namespace EmailUI
                 detailsList.Add(detailsFromHTML.ElementAt(51).InnerText.Trim());
                 detailsList.Add(detailsFromHTML.ElementAt(53).InnerText.Trim());
                 detailsList.Add(detailsFromHTML.ElementAt(55).InnerText.Trim());
-                if (detailsFromHTML.ElementAt(57).InnerText.Trim().Split('\n').Length > 1)
-                {
-                    detailsList.Add(detailsFromHTML.ElementAt(57).InnerText.Trim().Split('\n').ElementAt(5).Trim());
-                }
-                else
-                {
-                    detailsList.Add("N/A");
-                }
+                detailsList.Add(detailsFromHTML.ElementAt(57).InnerText.Substring(detailsFromHTML.ElementAt(57).InnerText.IndexOf(':') + 1).Trim());
                 detailsList.Add(detailsFromHTML.ElementAt(59).InnerText.Trim());
             }
             else
@@ -257,9 +255,13 @@ namespace EmailUI
                 detailsList.Add(detailsFromHTML.ElementAt(35).InnerText.Trim());
                 detailsList.Add(detailsFromHTML.ElementAt(37).InnerText.Trim());
                 detailsList.Add(detailsFromHTML.ElementAt(39).InnerText.Trim());
-                if (detailsFromHTML.ElementAt(41).InnerText.Trim().Split('\n').Length > 1)
+                if (detailsFromHTML.ElementAt(41).InnerText.Contains("Rs"))
                 {
-                    detailsList.Add(detailsFromHTML.ElementAt(41).InnerText.Trim().Split('\n').ElementAt(6).Trim());
+                    detailsList.Add(detailsFromHTML.ElementAt(41).InnerText.Substring(detailsFromHTML.ElementAt(41).InnerText.IndexOf("Rs")));
+                }
+                else if (detailsFromHTML.ElementAt(41).InnerText.Contains("$"))
+                {
+                    detailsList.Add(detailsFromHTML.ElementAt(41).InnerText.Substring(detailsFromHTML.ElementAt(41).InnerText.IndexOf('$')));
                 }
                 else
                 {
@@ -273,14 +275,7 @@ namespace EmailUI
                 detailsList.Add(detailsFromHTML.ElementAt(53).InnerText.Trim());
                 detailsList.Add(detailsFromHTML.ElementAt(55).InnerText.Trim());
                 detailsList.Add(detailsFromHTML.ElementAt(57).InnerText.Trim());
-                if (detailsFromHTML.ElementAt(59).InnerText.Trim().Split('\n').Length > 2)
-                {
-                    detailsList.Add(detailsFromHTML.ElementAt(59).InnerText.Trim().Split('\n').ElementAt(5).Trim());
-                }
-                else
-                {
-                    detailsList.Add("N/A");
-                }
+                detailsList.Add(detailsFromHTML.ElementAt(59).InnerText.Substring(detailsFromHTML.ElementAt(59).InnerText.IndexOf(':') + 1).Trim());
                 detailsList.Add(detailsFromHTML.ElementAt(61).InnerText.Trim());
             }
             return detailsList;

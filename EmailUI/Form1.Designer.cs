@@ -56,10 +56,9 @@
             // progress
             // 
             this.progress.Location = new System.Drawing.Point(12, 311);
-            this.progress.MarqueeAnimationSpeed = 50;
             this.progress.Name = "progress";
             this.progress.Size = new System.Drawing.Size(322, 24);
-            this.progress.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
+            this.progress.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
             this.progress.TabIndex = 6;
             // 
             // cancle
