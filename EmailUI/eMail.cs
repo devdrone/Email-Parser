@@ -40,10 +40,12 @@ namespace EmailUI
             public string Mobile { get; set; }
             public string Landline { get; set; }
             public string Notice_period { get; set; }
+            public string emailID { get; set; }
         }
 
-        public int[] getMails(RichTextBox logger)
+        public List<int> getMails(RichTextBox logger,TextBox id)
         {
+            int mailID = Convert.ToInt32(id.Text);
             try
             {
                 client.ConnectSsl("imap.gmail.com", 993);
@@ -51,11 +53,12 @@ namespace EmailUI
                 client.Login("hrd@selectiveindia.in", "Ndbhdispc");//("developer1@mobotics.in", "mobotics@01");//
                 LogUpdate(logger, "Logged in Successfully", false);
                 mails = client.SelectMailbox("INBOX");
-                var messageids = mails.Search("FROM \"@naukri.com\"");//("ALL");//
-                string log = string.Format("{0} mails fetched", messageids.Length);
+                List<int> messageids = mails.Search("FROM \"@naukri.com\"").ToList();//("ALL");//
+                List<int> selectMessage = messageids.Where(n => n > mailID).ToList();
+                string log = string.Format("{0} mails fetched", selectMessage.Count);
                 LogUpdate(logger, log, false);
                 Thread.Sleep(3000);
-                return messageids;
+                return selectMessage;
             }
             catch (Exception ex)
             {
@@ -67,7 +70,7 @@ namespace EmailUI
         public ActiveUp.Net.Mail.Message readMails(int messageid, RichTextBox logger)
         {
             string log = string.Empty;
-            logger.ResetText();
+            //logger.ResetText();
             try
             {
                 LogUpdate(logger, string.Format("> ID:{0} Validating mail", messageid), false);
@@ -102,7 +105,7 @@ namespace EmailUI
                 MySqlConnection connection = new MySqlConnection(sqlconnection);
                 connection.Open();
                 LogUpdate(log, "Connected to Database server. \nCopying..", false);
-                string query = string.Format("INSERT INTO test.email(sender,subject,body,attachment,resume_headline,key_skill,name,total_experience,ctc,current_employer,current_designation,last_employer,last_designation,current_location,preferred_location,education,mobile,landline,notice_period) VALUES(@SENDER,@SUBJECT,@BODY,@ATTACH,@HEAD,@SKILL,@NAME,@TEXP,@CTC,@CEMP,@CDSG,@LEMP,@LDSG,@CLOC,@PLOC,@EDU,@MOB,@LAND,@NP)");
+                string query = string.Format("INSERT INTO test.email(sender,subject,body,attachment,resume_headline,key_skill,name,total_experience,ctc,current_employer,current_designation,last_employer,last_designation,current_location,preferred_location,education,mobile,landline,notice_period,emailid) VALUES(@SENDER,@SUBJECT,@BODY,@ATTACH,@HEAD,@SKILL,@NAME,@TEXP,@CTC,@CEMP,@CDSG,@LEMP,@LDSG,@CLOC,@PLOC,@EDU,@MOB,@LAND,@NP,@EID)");
                 MySqlCommand command = new MySqlCommand(query, connection);
                 command.Parameters.Add("@SENDER", MySqlDbType.VarChar, 100);
                 command.Parameters.Add("@SUBJECT", MySqlDbType.VarChar, 100);
@@ -123,6 +126,7 @@ namespace EmailUI
                 command.Parameters.Add("@MOB", MySqlDbType.VarChar, 255);
                 command.Parameters.Add("@LAND", MySqlDbType.VarChar, 255);
                 command.Parameters.Add("@NP", MySqlDbType.VarChar, 255);
+                command.Parameters.Add("@EID", MySqlDbType.VarChar, 255);
 
                 command.Parameters["@SENDER"].Value = maildata.Sender;
                 command.Parameters["@SUBJECT"].Value = maildata.Subject;
@@ -143,6 +147,7 @@ namespace EmailUI
                 command.Parameters["@MOB"].Value = maildata.Mobile;
                 command.Parameters["@LAND"].Value = maildata.Landline;
                 command.Parameters["@NP"].Value = maildata.Notice_period;
+                command.Parameters["@EID"].Value = maildata.emailID;
 
                 int reader = command.ExecuteNonQuery();
                 LogUpdate(log, "Mail from " + maildata.Sender + " copied to Database", false);
@@ -208,77 +213,52 @@ namespace EmailUI
             }
         }
 
-        public int progressValue(int value)
+        public int progressValue(double value)
         {
-            return 100 / value;
+            double incrementValue = 100 / value;
+            return (int)(incrementValue);
         }
 
         public List<string> htmlDetailsParser(string body)
         {
-            HtmlAgilityPack.HtmlDocument doc = new HtmlAgilityPack.HtmlDocument();
-            doc.LoadHtml(body);
-            var detailsFromHTML = doc.DocumentNode.SelectNodes("//tr");
-            List<string> detailsList = new List<string>();
-            if (!body.Contains("Forwarded message"))
+            int firstIndex = 0;
+            int lastIndex = 0;
+            List<string> candidateDetails = new List<string>();
+            try
             {
-                detailsList.Add(detailsFromHTML.ElementAt(31).InnerText.Trim());
-                detailsList.Add(detailsFromHTML.ElementAt(33).InnerText.Trim());
-                detailsList.Add(detailsFromHTML.ElementAt(35).InnerText.Trim());
-                detailsList.Add(detailsFromHTML.ElementAt(37).InnerText.Trim());
-                if (detailsFromHTML.ElementAt(39).InnerText.Contains("Rs"))
+                if (body.Contains("Notice Period"))
                 {
-                    detailsList.Add(detailsFromHTML.ElementAt(39).InnerText.Substring(detailsFromHTML.ElementAt(39).InnerText.IndexOf("Rs")));
+                    firstIndex = body.IndexOf("Resume Headline");
+                    lastIndex = body.IndexOf("Notice Period") + 20;
+                    candidateDetails = body.Substring(firstIndex, lastIndex - firstIndex).Replace("          ", "\n").Split('\n').ToList();
                 }
-                else if (detailsFromHTML.ElementAt(39).InnerText.Contains("$"))
+                else if (body.Contains("Landline"))
                 {
-                    detailsList.Add(detailsFromHTML.ElementAt(39).InnerText.Substring(detailsFromHTML.ElementAt(39).InnerText.IndexOf('$')));
+                    firstIndex = body.IndexOf("Resume Headline");
+                    lastIndex = body.IndexOf("Landline") + 20;
+                    candidateDetails = body.Substring(firstIndex, lastIndex - firstIndex).Replace("          ", "\n").Split('\n').ToList();
+                    candidateDetails.Add("Notice Period : N/A");
                 }
                 else
                 {
-                    detailsList.Add("N/A");
-                }
-                detailsList.Add(detailsFromHTML.ElementAt(41).InnerText.Trim());
-                detailsList.Add(detailsFromHTML.ElementAt(43).InnerText.Trim());
-                detailsList.Add(detailsFromHTML.ElementAt(45).InnerText.Trim());
-                detailsList.Add(detailsFromHTML.ElementAt(47).InnerText.Trim());
-                detailsList.Add(detailsFromHTML.ElementAt(49).InnerText.Trim());
-                detailsList.Add(detailsFromHTML.ElementAt(51).InnerText.Trim());
-                detailsList.Add(detailsFromHTML.ElementAt(53).InnerText.Trim());
-                detailsList.Add(detailsFromHTML.ElementAt(55).InnerText.Trim());
-                detailsList.Add(detailsFromHTML.ElementAt(57).InnerText.Substring(detailsFromHTML.ElementAt(57).InnerText.IndexOf(':') + 1).Trim());
-                detailsList.Add(detailsFromHTML.ElementAt(59).InnerText.Trim());
-            }
-            else
-            {
+                    firstIndex = body.IndexOf("Resume Headline");
+                    lastIndex = body.IndexOf("Mobile") + 20;
+                    candidateDetails = body.Substring(firstIndex, lastIndex - firstIndex).Replace("          ", "\n").Split('\n').ToList();
+                    candidateDetails.Add("Landline : N/A");
+                    candidateDetails.Add("Notice Period : N/A");
 
-                detailsList.Add(detailsFromHTML.ElementAt(33).InnerText.Trim());
-                detailsList.Add(detailsFromHTML.ElementAt(35).InnerText.Trim());
-                detailsList.Add(detailsFromHTML.ElementAt(37).InnerText.Trim());
-                detailsList.Add(detailsFromHTML.ElementAt(39).InnerText.Trim());
-                if (detailsFromHTML.ElementAt(41).InnerText.Contains("Rs"))
-                {
-                    detailsList.Add(detailsFromHTML.ElementAt(41).InnerText.Substring(detailsFromHTML.ElementAt(41).InnerText.IndexOf("Rs")));
                 }
-                else if (detailsFromHTML.ElementAt(41).InnerText.Contains("$"))
+
+                if (candidateDetails.Count == 14)
                 {
-                    detailsList.Add(detailsFromHTML.ElementAt(41).InnerText.Substring(detailsFromHTML.ElementAt(41).InnerText.IndexOf('$')));
+                    candidateDetails.Add("Notice Period : N/A");
                 }
-                else
-                {
-                    detailsList.Add("N/A");
-                }
-                detailsList.Add(detailsFromHTML.ElementAt(43).InnerText.Trim());
-                detailsList.Add(detailsFromHTML.ElementAt(45).InnerText.Trim());
-                detailsList.Add(detailsFromHTML.ElementAt(47).InnerText.Trim());
-                detailsList.Add(detailsFromHTML.ElementAt(49).InnerText.Trim());
-                detailsList.Add(detailsFromHTML.ElementAt(51).InnerText.Trim());
-                detailsList.Add(detailsFromHTML.ElementAt(53).InnerText.Trim());
-                detailsList.Add(detailsFromHTML.ElementAt(55).InnerText.Trim());
-                detailsList.Add(detailsFromHTML.ElementAt(57).InnerText.Trim());
-                detailsList.Add(detailsFromHTML.ElementAt(59).InnerText.Substring(detailsFromHTML.ElementAt(59).InnerText.IndexOf(':') + 1).Trim());
-                detailsList.Add(detailsFromHTML.ElementAt(61).InnerText.Trim());
+                return candidateDetails;
             }
-            return detailsList;
+            catch (Exception ex)
+            {
+                return candidateDetails;
+            }
         }
     }
 }
