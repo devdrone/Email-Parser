@@ -11,7 +11,6 @@ using System.Windows.Forms;
 using MySql.Data.MySqlClient;
 using IniParser;
 using IniParser.Model;
-using HtmlAgilityPack;
 
 namespace EmailUI
 {

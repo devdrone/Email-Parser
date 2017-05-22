@@ -11,7 +11,6 @@ using MySql.Data.MySqlClient;
 using IniParser;
 using IniParser.Model;
 using ActiveUp.Net.Mail;
-using HtmlAgilityPack;
 
 namespace EmailUI
 {
