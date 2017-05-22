@@ -42,26 +42,25 @@ namespace EmailUI
             public string emailID { get; set; }
         }
 
-        public List<int> getMails(RichTextBox logger,TextBox id)
+        public List<int> getMails(RichTextBox logger, int mailid)
         {
-            int mailID = Convert.ToInt32(id.Text);
             try
             {
+                LogUpdate(logger, "Connecting to Gmail Server...", false);
                 client.ConnectSsl("imap.gmail.com", 993);
-                LogUpdate(logger, "Connected to Gmail Server.", false);
-                client.Login("hrd@selectiveindia.in", "Ndbhdispc");//("developer1@mobotics.in", "mobotics@01");//
-                LogUpdate(logger, "Logged in Successfully", false);
+                LogUpdate(logger, "Connected. Signing In to hrd@selectiveindia.in", false);
+                client.Login("hrd@selectiveindia.in", "Ndbhdispc");
+                LogUpdate(logger, "Signed In. Fetching Emails...", false);
                 mails = client.SelectMailbox("INBOX");
                 List<int> messageids = mails.Search("FROM \"@naukri.com\"").ToList();//("ALL");//
-                List<int> selectMessage = messageids.Where(n => n > mailID).ToList();
-                string log = string.Format("{0} mails fetched", selectMessage.Count);
-                LogUpdate(logger, log, false);
+                List<int> selectMessage = messageids.Where(n => n > mailid).ToList();
+                LogUpdate(logger, selectMessage.Count + " Mails fetched.", false);
                 Thread.Sleep(3000);
                 return selectMessage;
             }
             catch (Exception ex)
             {
-                LogUpdate(logger, ex.Message, true);
+                LogUpdate(logger, "Error:" + ex.Message, true);
                 return null;
             }
         }
@@ -69,41 +68,38 @@ namespace EmailUI
         public ActiveUp.Net.Mail.Message readMails(int messageid, RichTextBox logger)
         {
             string log = string.Empty;
-            //logger.ResetText();
             try
             {
-                LogUpdate(logger, string.Format("> ID:{0} Validating mail", messageid), false);
+                LogUpdate(logger, "Processing mail ID : " + messageid, false);
                 var message = mails.Fetch.MessageObject(messageid);
                 if (message.Subject.Contains("star applicant - Naukri.com"))
                 {
-                    LogUpdate(logger, string.Format("> ID:{0} email Validated.", messageid), false);
+                    LogUpdate(logger, "Validated : " + messageid, false);
                     return message;
                 }
                 else
                 {
-                    LogUpdate(logger, string.Format("> ID:{0} Invalid eMail. Skipping..", messageid), false);
-                    //Thread.Sleep(2000);
+                    LogUpdate(logger, "Skipped : " + messageid, false);
                     return null;
                 }
             }
             catch (Exception ex)
             {
-                LogUpdate(logger, ex.Message, true);
+                LogUpdate(logger, "Error : " + ex.Message, true);
                 return null;
             }
         }
 
-        public void emailToDatabase(emailid maildata, RichTextBox log)
+        public void emailToDatabase(emailid maildata, RichTextBox logger)
         {
             try
             {
-                LogUpdate(log, "\n ", false);
-                LogUpdate(log, "Connecting to Database server..", false);
                 var serverdetail = iniparser("mysql-config.ini");
+                LogUpdate(logger, "\n Connecting to the Database server..", false);
                 string sqlconnection = string.Format("Server={0};Database={1};uid={2};pwd={3};Allow User Variables=True", serverdetail.name, serverdetail.database, serverdetail.user, serverdetail.pass);
                 MySqlConnection connection = new MySqlConnection(sqlconnection);
                 connection.Open();
-                LogUpdate(log, "Connected to Database server. \nCopying..", false);
+                LogUpdate(logger, "Connected to Database server..", false);
                 string query = string.Format("INSERT INTO test.email(sender,subject,body,attachment,resume_headline,key_skill,name,total_experience,ctc,current_employer,current_designation,last_employer,last_designation,current_location,preferred_location,education,mobile,landline,notice_period,emailid) VALUES(@SENDER,@SUBJECT,@BODY,@ATTACH,@HEAD,@SKILL,@NAME,@TEXP,@CTC,@CEMP,@CDSG,@LEMP,@LDSG,@CLOC,@PLOC,@EDU,@MOB,@LAND,@NP,@EID)");
                 MySqlCommand command = new MySqlCommand(query, connection);
                 command.Parameters.Add("@SENDER", MySqlDbType.VarChar, 100);
@@ -147,13 +143,13 @@ namespace EmailUI
                 command.Parameters["@LAND"].Value = maildata.Landline;
                 command.Parameters["@NP"].Value = maildata.Notice_period;
                 command.Parameters["@EID"].Value = maildata.emailID;
-
+                LogUpdate(logger, "\n Copying to Database", false);
                 int reader = command.ExecuteNonQuery();
-                LogUpdate(log, "Mail from " + maildata.Sender + " copied to Database", false);
+                LogUpdate(logger, "\n Copied", false);
             }
             catch (Exception ex)
             {
-                LogUpdate(log, ex.Message, true);
+                LogUpdate(logger, "Error : " + ex.Message, true);
             }
         }
 
@@ -184,22 +180,25 @@ namespace EmailUI
 
         public void LogUpdate(RichTextBox logger, string message, bool error)
         {
-            if (error)
+            logger.Invoke(new Action(() =>
             {
-                logger.ForeColor = Color.Red;
-                logger.Text = message + "\n";
-            }
-            else
-            {
-                logger.ForeColor = Color.Black;
-                logger.Text += message + "\n";
-            }
-            logger.SelectionStart = logger.Text.Length;
-            logger.ScrollToCaret();
-            logger.Update();
+                if (error)
+                {
+                    logger.ForeColor = Color.Red;
+                    logger.Text = message + "\n";
+                }
+                else
+                {
+                    logger.ForeColor = Color.Black;
+                    logger.Text += message + "\n";
+                }
+                logger.SelectionStart = logger.Text.Length;
+                logger.ScrollToCaret();
+                logger.Update();
+            }));
         }
 
-        public string BodyParse(string detail, string searchText, RichTextBox logger)
+        public string BodyParse(string detail, string searchText)
         {
             try
             {
@@ -207,15 +206,14 @@ namespace EmailUI
             }
             catch (Exception ex)
             {
-                LogUpdate(logger, ex.Message, true);
                 return "N/A";
             }
         }
 
-        public int progressValue(double value)
+        public double progressValue(int value)
         {
             double incrementValue = 100 / value;
-            return (int)(incrementValue);
+            return incrementValue;
         }
 
         public List<string> htmlDetailsParser(string body)
