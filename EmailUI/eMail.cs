@@ -257,6 +257,18 @@ namespace EmailUI
                 return candidateDetails;
             }
         }
+
+        public void remainingTime(int remainingMail,Label remTime)
+        {
+            int time = remainingMail * 4;
+            TimeSpan timeRemaining = TimeSpan.FromSeconds(time);
+            string remainigTime = string.Format("Remaining Time : {0}:{1}:{2}", timeRemaining.Hours.ToString(), timeRemaining.Minutes.ToString(), timeRemaining.Seconds.ToString());
+            remTime.Invoke(new Action(
+                () =>
+                {
+                    remTime.Text = remainigTime;
+                }));
+        }
     }
 }
 

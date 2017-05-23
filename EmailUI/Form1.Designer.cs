@@ -36,13 +36,29 @@
             this.multiThread = new System.ComponentModel.BackgroundWorker();
             this.progressPercentage = new System.Windows.Forms.Label();
             this.cancle = new System.Windows.Forms.Button();
+            this.startService = new System.Windows.Forms.Button();
+            this.stopService = new System.Windows.Forms.Button();
+            this.installService = new System.Windows.Forms.Button();
+            this.serviceStatus = new System.Windows.Forms.Label();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.totalMail = new System.Windows.Forms.Label();
+            this.synced = new System.Windows.Forms.Label();
+            this.skipped = new System.Windows.Forms.Label();
+            this.error = new System.Windows.Forms.Label();
+            this.remTime = new System.Windows.Forms.Label();
+            this.projectInstaller1 = new EmailUI.ProjectInstaller();
+            this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // logger
             // 
-            this.logger.Location = new System.Drawing.Point(12, 41);
+            this.logger.BackColor = System.Drawing.SystemColors.ControlDark;
+            this.logger.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.logger.Cursor = System.Windows.Forms.Cursors.Default;
+            this.logger.Location = new System.Drawing.Point(12, 70);
             this.logger.Name = "logger";
-            this.logger.Size = new System.Drawing.Size(323, 264);
+            this.logger.ReadOnly = true;
+            this.logger.Size = new System.Drawing.Size(323, 194);
             this.logger.TabIndex = 4;
             this.logger.Text = "";
             // 
@@ -58,7 +74,7 @@
             // 
             // progress
             // 
-            this.progress.Location = new System.Drawing.Point(12, 311);
+            this.progress.Location = new System.Drawing.Point(12, 358);
             this.progress.Name = "progress";
             this.progress.Size = new System.Drawing.Size(322, 24);
             this.progress.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
@@ -107,11 +123,112 @@
             this.cancle.UseVisualStyleBackColor = true;
             this.cancle.Click += new System.EventHandler(this.cancle_Click);
             // 
+            // startService
+            // 
+            this.startService.Location = new System.Drawing.Point(103, 42);
+            this.startService.Name = "startService";
+            this.startService.Size = new System.Drawing.Size(49, 23);
+            this.startService.TabIndex = 11;
+            this.startService.Text = "Start";
+            this.startService.UseVisualStyleBackColor = true;
+            this.startService.Click += new System.EventHandler(this.startService_Click);
+            // 
+            // stopService
+            // 
+            this.stopService.Location = new System.Drawing.Point(155, 42);
+            this.stopService.Name = "stopService";
+            this.stopService.Size = new System.Drawing.Size(49, 23);
+            this.stopService.TabIndex = 12;
+            this.stopService.Text = "Stop";
+            this.stopService.UseVisualStyleBackColor = true;
+            this.stopService.Click += new System.EventHandler(this.stopService_Click);
+            // 
+            // installService
+            // 
+            this.installService.Location = new System.Drawing.Point(12, 42);
+            this.installService.Name = "installService";
+            this.installService.Size = new System.Drawing.Size(85, 22);
+            this.installService.TabIndex = 13;
+            this.installService.Text = "Install Service";
+            this.installService.UseVisualStyleBackColor = true;
+            this.installService.Click += new System.EventHandler(this.installService_Click);
+            // 
+            // serviceStatus
+            // 
+            this.serviceStatus.AutoSize = true;
+            this.serviceStatus.Location = new System.Drawing.Point(225, 47);
+            this.serviceStatus.Name = "serviceStatus";
+            this.serviceStatus.Size = new System.Drawing.Size(92, 13);
+            this.serviceStatus.TabIndex = 14;
+            this.serviceStatus.Text = "Service : Stopped";
+            // 
+            // panel1
+            // 
+            this.panel1.Controls.Add(this.remTime);
+            this.panel1.Controls.Add(this.error);
+            this.panel1.Controls.Add(this.skipped);
+            this.panel1.Controls.Add(this.synced);
+            this.panel1.Controls.Add(this.totalMail);
+            this.panel1.Location = new System.Drawing.Point(12, 270);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(322, 82);
+            this.panel1.TabIndex = 15;
+            // 
+            // totalMail
+            // 
+            this.totalMail.AutoSize = true;
+            this.totalMail.Location = new System.Drawing.Point(15, 10);
+            this.totalMail.Name = "totalMail";
+            this.totalMail.Size = new System.Drawing.Size(64, 13);
+            this.totalMail.TabIndex = 0;
+            this.totalMail.Text = "Total Mails :";
+            // 
+            // synced
+            // 
+            this.synced.AutoSize = true;
+            this.synced.Location = new System.Drawing.Point(15, 37);
+            this.synced.Name = "synced";
+            this.synced.Size = new System.Drawing.Size(64, 13);
+            this.synced.TabIndex = 1;
+            this.synced.Text = "Synced      :";
+            // 
+            // skipped
+            // 
+            this.skipped.AutoSize = true;
+            this.skipped.Location = new System.Drawing.Point(177, 10);
+            this.skipped.Name = "skipped";
+            this.skipped.Size = new System.Drawing.Size(52, 13);
+            this.skipped.TabIndex = 2;
+            this.skipped.Text = "Skipped :";
+            // 
+            // error
+            // 
+            this.error.AutoSize = true;
+            this.error.Location = new System.Drawing.Point(179, 37);
+            this.error.Name = "error";
+            this.error.Size = new System.Drawing.Size(50, 13);
+            this.error.TabIndex = 3;
+            this.error.Text = "Error      :";
+            // 
+            // remTime
+            // 
+            this.remTime.AutoSize = true;
+            this.remTime.Location = new System.Drawing.Point(51, 60);
+            this.remTime.Name = "remTime";
+            this.remTime.Size = new System.Drawing.Size(92, 13);
+            this.remTime.TabIndex = 4;
+            this.remTime.Text = "Remaining Time : ";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(347, 347);
+            this.ClientSize = new System.Drawing.Size(347, 395);
+            this.Controls.Add(this.panel1);
+            this.Controls.Add(this.serviceStatus);
+            this.Controls.Add(this.installService);
+            this.Controls.Add(this.stopService);
+            this.Controls.Add(this.startService);
             this.Controls.Add(this.cancle);
             this.Controls.Add(this.progressPercentage);
             this.Controls.Add(this.fromID);
@@ -121,6 +238,8 @@
             this.Controls.Add(this.logger);
             this.Name = "Form1";
             this.Text = "EMAIL Parser";
+            this.panel1.ResumeLayout(false);
+            this.panel1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -136,6 +255,17 @@
         private System.ComponentModel.BackgroundWorker multiThread;
         private System.Windows.Forms.Label progressPercentage;
         private System.Windows.Forms.Button cancle;
+        private System.Windows.Forms.Button startService;
+        private System.Windows.Forms.Button stopService;
+        private System.Windows.Forms.Button installService;
+        private System.Windows.Forms.Label serviceStatus;
+        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.Label totalMail;
+        private System.Windows.Forms.Label error;
+        private System.Windows.Forms.Label skipped;
+        private System.Windows.Forms.Label synced;
+        private System.Windows.Forms.Label remTime;
+        private ProjectInstaller projectInstaller1;
     }
 }
 
