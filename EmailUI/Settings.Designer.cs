@@ -25,7 +25,7 @@ namespace EmailUI {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("55842")]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
         public string fromID {
             get {
                 return ((string)(this["fromID"]));

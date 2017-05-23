@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.IO;
@@ -21,6 +22,7 @@ namespace EmailUI
     public partial class Form1 : Form
     {
         Settings resumeFrom = new Settings();
+        Stopwatch watch = new Stopwatch();
         public Form1()
         {
             InitializeComponent();
@@ -101,7 +103,7 @@ namespace EmailUI
                     error.Invoke(new Action(() => { error.Text = "Error      : " + err; }));
                     err++;
                 }
-                emaildata.remainingTime(emaiIds.Count - i,remTime);
+                emaildata.remainingTime(emaiIds.Count - i, remTime);
             }
         }
 
@@ -125,12 +127,16 @@ namespace EmailUI
             {
                 progressPercentage.Text = "Completed";
             }
+            watch.Stop();
+            timer1.Stop();
             signIn.Enabled = true;
             cancle.Enabled = false;
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
+            timer1.Start();
+            watch.Start();
             signIn.Enabled = false;
             cancle.Enabled = true;
             startService.Enabled = false;
@@ -184,7 +190,7 @@ namespace EmailUI
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 logger.Invoke(new Action(() => { logger.Text = ".NET Framework v4.5+ is required, Please install and try again."; }));
                 return string.Empty;
@@ -219,6 +225,7 @@ namespace EmailUI
                         cancle.Enabled = false;
                         installService.Enabled = false;
                         stopService.Enabled = true;
+                        logger.Invoke(new Action(() => { logger.Text = "Service Running. Stop service to run manually."; }));
                         break;
                     case ServiceControllerStatus.StartPending:
                         serviceStatus.Text = "Service : Start Pending";
@@ -235,12 +242,13 @@ namespace EmailUI
                         stopService.Enabled = false;
                         startService.Enabled = true;
                         installService.Enabled = false;
+                        signIn.Enabled = true;
                         break;
                     default:
                         break;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 serviceStatus.Text = "Service : Not Installed";
                 installService.Enabled = true;
@@ -277,6 +285,12 @@ namespace EmailUI
                 logger.Invoke(new Action(() => { logger.Text = "Error : " + ex.Message; }));
             }
             serviceCheck();
+        }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            string time = string.Format("Elapsed : {0}:{1}:{2}", watch.Elapsed.Hours, watch.Elapsed.Minutes, watch.Elapsed.Seconds);
+            totalTime.Text = time;
         }
     }
 }

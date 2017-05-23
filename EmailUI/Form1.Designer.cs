@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.logger = new System.Windows.Forms.RichTextBox();
             this.signIn = new System.Windows.Forms.Button();
             this.progress = new System.Windows.Forms.ProgressBar();
@@ -41,12 +42,14 @@
             this.installService = new System.Windows.Forms.Button();
             this.serviceStatus = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.totalMail = new System.Windows.Forms.Label();
-            this.synced = new System.Windows.Forms.Label();
-            this.skipped = new System.Windows.Forms.Label();
-            this.error = new System.Windows.Forms.Label();
             this.remTime = new System.Windows.Forms.Label();
+            this.error = new System.Windows.Forms.Label();
+            this.skipped = new System.Windows.Forms.Label();
+            this.synced = new System.Windows.Forms.Label();
+            this.totalMail = new System.Windows.Forms.Label();
             this.projectInstaller1 = new EmailUI.ProjectInstaller();
+            this.totalTime = new System.Windows.Forms.Label();
+            this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -164,6 +167,7 @@
             // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.totalTime);
             this.panel1.Controls.Add(this.remTime);
             this.panel1.Controls.Add(this.error);
             this.panel1.Controls.Add(this.skipped);
@@ -174,23 +178,23 @@
             this.panel1.Size = new System.Drawing.Size(322, 82);
             this.panel1.TabIndex = 15;
             // 
-            // totalMail
+            // remTime
             // 
-            this.totalMail.AutoSize = true;
-            this.totalMail.Location = new System.Drawing.Point(15, 10);
-            this.totalMail.Name = "totalMail";
-            this.totalMail.Size = new System.Drawing.Size(64, 13);
-            this.totalMail.TabIndex = 0;
-            this.totalMail.Text = "Total Mails :";
+            this.remTime.AutoSize = true;
+            this.remTime.Location = new System.Drawing.Point(16, 59);
+            this.remTime.Name = "remTime";
+            this.remTime.Size = new System.Drawing.Size(66, 13);
+            this.remTime.TabIndex = 4;
+            this.remTime.Text = "Remaining : ";
             // 
-            // synced
+            // error
             // 
-            this.synced.AutoSize = true;
-            this.synced.Location = new System.Drawing.Point(15, 37);
-            this.synced.Name = "synced";
-            this.synced.Size = new System.Drawing.Size(64, 13);
-            this.synced.TabIndex = 1;
-            this.synced.Text = "Synced      :";
+            this.error.AutoSize = true;
+            this.error.Location = new System.Drawing.Point(179, 35);
+            this.error.Name = "error";
+            this.error.Size = new System.Drawing.Size(50, 13);
+            this.error.TabIndex = 3;
+            this.error.Text = "Error      :";
             // 
             // skipped
             // 
@@ -201,23 +205,37 @@
             this.skipped.TabIndex = 2;
             this.skipped.Text = "Skipped :";
             // 
-            // error
+            // synced
             // 
-            this.error.AutoSize = true;
-            this.error.Location = new System.Drawing.Point(179, 37);
-            this.error.Name = "error";
-            this.error.Size = new System.Drawing.Size(50, 13);
-            this.error.TabIndex = 3;
-            this.error.Text = "Error      :";
+            this.synced.AutoSize = true;
+            this.synced.Location = new System.Drawing.Point(15, 35);
+            this.synced.Name = "synced";
+            this.synced.Size = new System.Drawing.Size(64, 13);
+            this.synced.TabIndex = 1;
+            this.synced.Text = "Synced      :";
             // 
-            // remTime
+            // totalMail
             // 
-            this.remTime.AutoSize = true;
-            this.remTime.Location = new System.Drawing.Point(51, 60);
-            this.remTime.Name = "remTime";
-            this.remTime.Size = new System.Drawing.Size(92, 13);
-            this.remTime.TabIndex = 4;
-            this.remTime.Text = "Remaining Time : ";
+            this.totalMail.AutoSize = true;
+            this.totalMail.Location = new System.Drawing.Point(15, 10);
+            this.totalMail.Name = "totalMail";
+            this.totalMail.Size = new System.Drawing.Size(64, 13);
+            this.totalMail.TabIndex = 0;
+            this.totalMail.Text = "Total Mails :";
+            // 
+            // totalTime
+            // 
+            this.totalTime.AutoSize = true;
+            this.totalTime.Location = new System.Drawing.Point(178, 59);
+            this.totalTime.Name = "totalTime";
+            this.totalTime.Size = new System.Drawing.Size(51, 13);
+            this.totalTime.TabIndex = 5;
+            this.totalTime.Text = "Elapsed :";
+            // 
+            // timer1
+            // 
+            this.timer1.Interval = 1000;
+            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
             // Form1
             // 
@@ -266,6 +284,8 @@
         private System.Windows.Forms.Label synced;
         private System.Windows.Forms.Label remTime;
         private ProjectInstaller projectInstaller1;
+        private System.Windows.Forms.Label totalTime;
+        private System.Windows.Forms.Timer timer1;
     }
 }
 
